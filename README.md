@@ -1,0 +1,2 @@
+# cheats
+shortcut for stuffs
