@@ -1,0 +1,106 @@
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generate Font</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: sans-serif;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Middle container -->
+    <div id="root">
+        <!-- header -->
+        <h1>SUDIP DAS! THAT'S IT 🚀</h1>
+        <hr>
+        <hr>
+        <br>
+        <br>
+        <!-- textarea to get char -->
+        <textarea id="char" cols="30" rows="10" placeholder="Paste your char here"></textarea>
+
+        <!-- input to get font name -->
+        <input type="text" id="font-name" placeholder="Char Name">
+
+        <!-- button to generate code -->
+        <button onclick="main()">Generate</button>
+
+        <!-- horizontal line -->
+        <hr>
+
+        <!-- textarea to show code -->
+        <h2>Generated Code</h2>
+        <textarea id="code" cols="120" rows="30" disabled></textarea>
+    </div>
+
+</body>
+
+<script>
+    function generateCharCode(character) {
+        const rows = character.split("\n");
+        let maxCols = 0;
+        const chars = {};
+        for (let i = 0; i < rows.length; i++) {
+            const row = rows[i];
+            if (row.length > maxCols) {
+                maxCols = row.length;
+            }
+            for (let j = 0; j < row.length; j++) {
+                const char = row[j];
+                if (!chars[char]) {
+                    chars[char] = [];
+                }
+                chars[char].push([i, j]);
+            }
+        }
+        const charCode = {};
+        for (const char in chars) {
+            const charGrid = chars[char];
+            charCode[char] = `${charGrid
+                .map((grid) => `character[${grid[0]}][${grid[1]}]`)
+                .join(" = ")} = '${char}';`;
+        }
+
+        return {
+            charCode,
+            rows: rows.length,
+            cols: maxCols,
+        };
+    }
+
+    const printCharCode = (charCode, rows, cols, ltr) => {
+        const codeString = `
+    char **${ltr}()
+    {
+        char **character = getCharGrid(${rows}, ${cols});
+        ${Object.values(charCode).join("\n")}
+        return character;
+    }
+    `;
+
+        // // save to file
+        // const fs = require("fs");
+        // fs.writeFileSync("charCode.txt", codeString);
+
+        return codeString;
+    };
+
+    function main() {
+        const ch = document.getElementById("char").value;
+        const ltr = document.getElementById("font-name").value;
+        const result = generateCharCode(ch);
+        const codeString = printCharCode(result.charCode, result.rows, result.cols, ltr);
+
+        document.getElementById("code").value = codeString;
+    }
+</script>
+
+</html>
